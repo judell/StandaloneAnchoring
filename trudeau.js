@@ -71,7 +71,7 @@ function attach_annotations(data) {
 		var text_position_selector = get_text_position_selector(selector_list);
  		if ( text_position_selector == null )
 			continue;
-        var position = text_position_selector['start'] + '_' + text_position_selector['end']
+		var position = text_position_selector['start'] + '_' + text_position_selector['end']
 		if ( anno_dict.hasOwnProperty(position) == false )
 			anno_dict[position] = [];
 			anno_dict[position].push( { "user":user, "position":position, "exact":exact, "text":text, "prefix":prefix } )
