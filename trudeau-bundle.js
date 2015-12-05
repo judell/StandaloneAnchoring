@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.get_annotations = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -22893,9 +22893,9 @@ function attach_annotation(bounds, exact, prefix, data) {
 	$(nodes).wrap('<span title="' + data  + '"' + ' class="' + bounds + ' hypothesis_annotation"></span>');
 }
 
-function get_annotations() {
+function get_annotations(uri) {
 	var $ = require('jquery');			      
-	url = 'https://hypothes.is/api/search?uri=' + location.href;
+	url = 'https://hypothes.is/api/search?uri=' + uri;
 	$.ajax({
 		url: url,
 		success: attach_annotations
@@ -22937,7 +22937,7 @@ function attach_annotations(data) {
 		var text_position_selector = get_text_position_selector(selector_list);
  		if ( text_position_selector == null )
 			continue;
-        var position = text_position_selector['start'] + '_' + text_position_selector['end']
+		var position = text_position_selector['start'] + '_' + text_position_selector['end']
 		if ( anno_dict.hasOwnProperty(position) == false )
 			anno_dict[position] = [];
 			anno_dict[position].push( { "user":user, "position":position, "exact":exact, "text":text, "prefix":prefix } )
@@ -22963,7 +22963,7 @@ function attach_annotations(data) {
 		
 }
 
-get_annotations();
+module.exports = get_annotations;
 
-
-},{"dom-anchor-text-quote":1,"jquery":6,"xpath-range":7}]},{},[12]);
+},{"dom-anchor-text-quote":1,"jquery":6,"xpath-range":7}]},{},[12])(12)
+});

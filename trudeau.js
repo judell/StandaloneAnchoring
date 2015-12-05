@@ -27,9 +27,9 @@ function attach_annotation(bounds, exact, prefix, data) {
 	$(nodes).wrap('<span title="' + data  + '"' + ' class="' + bounds + ' hypothesis_annotation"></span>');
 }
 
-function get_annotations() {
+function get_annotations(uri) {
 	var $ = require('jquery');			      
-	url = 'https://hypothes.is/api/search?uri=' + location.href;
+	url = 'https://hypothes.is/api/search?uri=' + uri;
 	$.ajax({
 		url: url,
 		success: attach_annotations
@@ -97,5 +97,4 @@ function attach_annotations(data) {
 		
 }
 
-get_annotations();
-
+module.exports = get_annotations;
