@@ -22868,10 +22868,9 @@ function attach_annotation(bounds, exact, prefix, data) {
   var TextQuoteAnchor = require ('dom-anchor-text-quote');
   var XPathRange = require('xpath-range');
   var $ = require('jquery');
-  var root = $('body')[0];
-  var tqa = new TextQuoteAnchor.default(root, exact, {'prefix':prefix});
+  var tqa = new TextQuoteAnchor.default(document.body, exact, {'prefix':prefix});
   var range = tqa.toRange();
-  var nodes = XPathRange.Range.sniff(range).normalize(root).textNodes();
+  var nodes = XPathRange.Range.sniff(range).normalize(document.body).textNodes();
   $(nodes).wrap('<span title="' + data  + '"' + ' class="' + bounds + ' hypothesis_annotation"></span>');
 }
 
