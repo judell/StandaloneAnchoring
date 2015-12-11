@@ -1,11 +1,15 @@
 function attach_annotation(bounds, exact, prefix, data) {
+  var wrap = require('wrap-range-text');
   var TextQuoteAnchor = require ('dom-anchor-text-quote');
-  var XPathRange = require('xpath-range');
-  var $ = require('jquery');
+
   var tqa = new TextQuoteAnchor.default(document.body, exact, {'prefix':prefix});
   var range = tqa.toRange();
-  var nodes = XPathRange.Range.sniff(range).normalize(document.body).textNodes();
-  $(nodes).wrap('<mark title="' + data  + '"' + ' class="' + bounds + ' hypothesis_annotation"></mark>');
+
+  var highlight = document.createElement('mark');
+  highlight.title = data;
+  highlight.className = bounds + ' hypothesis_annotation';
+
+  wrap(highlight, range);
 }
 
 function get_annotations(uri) {

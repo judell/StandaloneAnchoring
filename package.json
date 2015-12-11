@@ -22,6 +22,6 @@
     "babelify": "^7.2.0",
     "dom-anchor-text-quote": "^2.0.1",
     "jquery": "^2.1.4",
-    "xpath-range": "0.0.6"
+    "wrap-range-text": "^1.0.1"
   }
 }
