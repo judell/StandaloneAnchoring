@@ -22871,7 +22871,7 @@ function attach_annotation(bounds, exact, prefix, data) {
   var tqa = new TextQuoteAnchor.default(document.body, exact, {'prefix':prefix});
   var range = tqa.toRange();
   var nodes = XPathRange.Range.sniff(range).normalize(document.body).textNodes();
-  $(nodes).wrap('<span title="' + data  + '"' + ' class="' + bounds + ' hypothesis_annotation"></span>');
+  $(nodes).wrap('<mark title="' + data  + '"' + ' class="' + bounds + ' hypothesis_annotation"></mark>');
 }
 
 function get_annotations(uri) {
