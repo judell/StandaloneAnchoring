@@ -22886,7 +22886,7 @@ function get_annotations(uri) {
 
 function get_selector_with(selector_list, key) {
   for (var i=0; i<selector_list.length; i++) {
-    if ( selector_list[i].hasOwnProperty(key) ) 
+    if ( selector_list[i].hasOwnProperty(key) )
       return selector_list[i];
   }
 }

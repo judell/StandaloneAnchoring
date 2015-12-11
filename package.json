@@ -4,7 +4,7 @@
   "description": "Highlights from Hypothes.is",
   "main": "trudeau.js",
   "scripts": {
-    "build": "browserify trudeau.js -s get_annotations -o trudeau-bundle.js",
+    "build": "browserify src/index.js -s get_annotations -o dist/trudeau.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
