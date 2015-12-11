@@ -151,7 +151,11 @@ mark { background-color: rgba(0,20,220,0.2); }
 
 <script src="./dist/trudeau.js"></script>
 <script>
-  get_annotations('http://jonudell.net/h/trudeau.html');
+  var xhr = get_annotations('http://jonudell.net/h/trudeau.html');
+  xhr.addEventListener("load", function() {
+    console.log('page knows ajax is done, and so are the annotations...');
+    console.log('See:', document.querySelectorAll('mark'));
+  });
 </script>
 </body>
 </html>

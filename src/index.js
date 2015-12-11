@@ -1,4 +1,4 @@
-function attach_annotation(bounds, exact, prefix, data) {
+function attach_annotation(bounds, exact, prefix, payload, data) {
   var wrap = require('wrap-range-text');
   var TextQuoteAnchor = require ('dom-anchor-text-quote');
 
@@ -6,7 +6,9 @@ function attach_annotation(bounds, exact, prefix, data) {
   var range = tqa.toRange();
 
   var highlight = document.createElement('mark');
-  highlight.title = data;
+  highlight.id = 'hypothesis-' + data.id;
+  highlight.setAttribute('data-hypothesis', JSON.stringify(data));
+  highlight.title = payload;
   highlight.className = bounds + ' hypothesis_annotation';
 
   wrap(highlight, range);
@@ -22,6 +24,7 @@ function get_annotations(uri) {
   });
   xhr.open("GET", url);
   xhr.send();
+  return xhr;
 }
 
 function get_selector_with(selector_list, key) {
@@ -62,7 +65,9 @@ function attach_annotations(data) {
     var position = text_position_selector['start'] + '_' + text_position_selector['end']
     if ( anno_dict.hasOwnProperty(position) == false ) {
       anno_dict[position] = [];
-      anno_dict[position].push( { "user":user, "position":position, "exact":exact, "text":text, "prefix":prefix } );
+      anno_dict[position].push( {
+        "id":row['id'], "user":user, "position":position, "exact":exact,
+        "text":text, "prefix":prefix } );
     }
   }
 
@@ -81,7 +86,7 @@ function attach_annotations(data) {
       payload += anno['user'] + '\n' + anno['text'] + '\n\n';
     }
 
-    attach_annotation( key, exact, prefix, payload );
+    attach_annotation( key, exact, prefix, payload, anno );
   }
 }
 
