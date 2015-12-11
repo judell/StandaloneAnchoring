@@ -13,12 +13,15 @@ function attach_annotation(bounds, exact, prefix, data) {
 }
 
 function get_annotations(uri) {
-  var $ = require('jquery');
-  url = 'https://hypothes.is/api/search?uri=' + uri;
-  $.ajax({
-    url: url,
-    success: attach_annotations
+  var url = 'https://hypothes.is/api/search?uri=' + uri;
+
+  var xhr = new XMLHttpRequest();
+  xhr.addEventListener("load", function() {
+    // TODO: needs error handling...
+    attach_annotations(JSON.parse(xhr.responseText));
   });
+  xhr.open("GET", url);
+  xhr.send();
 }
 
 function get_selector_with(selector_list, key) {
