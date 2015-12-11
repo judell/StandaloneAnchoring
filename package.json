@@ -2,7 +2,7 @@
   "name": "trudeau",
   "version": "0.1.0",
   "description": "Highlights from Hypothes.is",
-  "main": "trudeau.js",
+  "main": "src/index.js",
   "scripts": {
     "build": "browserify src/index.js -s get_annotations -o dist/trudeau.js",
     "test": "echo \"Error: no test specified\" && exit 1"
