@@ -2,7 +2,7 @@
 <head>
 <style>
 body { margin: 1in; font-family:verdana }
-span { color: blue }
+mark { background-color: rgba(0,20,220,0.2); }
 </style>
 </head>
 
@@ -149,7 +149,9 @@ span { color: blue }
 <p>On October the 19th, let’s make it happen.</p>
 <p><em>Merci mes amis!</em></p>
 
-<script src="./trudeau-bundle.js"></script>
-
+<script src="./dist/trudeau.js"></script>
+<script>
+  get_annotations('http://jonudell.net/h/trudeau.html');
+</script>
 </body>
 </html>
