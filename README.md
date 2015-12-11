@@ -1,6 +1,6 @@
 # Trudeau
 
-A server-side annotation "injector" built on the Hypothes.is API.
+A annotation "injector" built on the Hypothes.is API.
 
 ## Usage
 
