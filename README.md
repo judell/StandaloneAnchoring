@@ -1,4 +1,4 @@
-# Trudeau
+# StandaloneAnchoring
 
 A annotation "injector" built on the Hypothes.is API.
 
