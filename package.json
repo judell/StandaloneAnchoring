@@ -1,22 +1,22 @@
 {
-  "name": "trudeau",
+  "name": "StandaloneAnchoring",
   "version": "0.1.0",
   "description": "Highlights from Hypothes.is",
   "main": "src/index.js",
   "scripts": {
-    "build": "browserify src/index.js -s get_annotations -o dist/trudeau.js",
+    "build": "browserify src/index.js -s get_annotations -o dist/StandaloneAnchoring.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/judell/trudeau.git"
+    "url": "git+https://github.com/judell/StandaloneAnchoring.git"
   },
   "author": "Jon Udell <judell@hypothes.is>",
   "license": "BSD",
   "bugs": {
-    "url": "https://github.com/judell/trudeau/issues"
+    "url": "https://github.com/judell/StandaloneAnchoring/issues"
   },
-  "homepage": "https://github.com/judell/trudeau#readme",
+  "homepage": "https://github.com/judell/StandaloneAnchoring#readme",
   "dependencies": {
     "babel-preset-es2015": "^6.3.13",
     "babelify": "^7.2.0",
