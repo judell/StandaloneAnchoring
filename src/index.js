@@ -48,7 +48,6 @@ function attach_annotations(data) {
   var rows = data['rows'];
   var anno_dict = {};
 
-  // extract annotations into a position-keyed object
   for ( var i=0; i < rows.length; i++ ) {
     var row = rows[i];
     var user = row['user'].replace('acct:','').replace('@hypothes.is','');
@@ -59,35 +58,19 @@ function attach_annotations(data) {
     var exact = text_quote_selector['exact'];
     var prefix = text_quote_selector['prefix'];
     var text = row['text'];
-    var text_position_selector = get_text_position_selector(selector_list);
-    if ( text_position_selector == null )
-      continue;
-    var position = text_position_selector['start'] + '_' + text_position_selector['end']
-    if ( anno_dict.hasOwnProperty(position) == false ) {
-      anno_dict[position] = [];
-      anno_dict[position].push( {
-        "id":row['id'], "user":user, "position":position, "exact":exact,
-        "text":text, "prefix":prefix } );
-    }
-  }
-
-  // accumulate payloads for each position key and anchor each accumulations
-  var keys = [];
-  for(var k in anno_dict) keys.push(k);
-  for (i=0; i<keys.length; i++) {
-    key = keys[i];
-    var anno_list = anno_dict[key];
-    var first_anno = anno_list[0];
-    var exact = first_anno['exact'];
-    var prefix = first_anno['prefix'];
-    var payload = ''
-    for (j=0; j<anno_list.length; j++) {
-      var anno = anno_list[j];
-      payload += anno['user'] + '\n' + anno['text'] + '\n\n';
+    var tags = row['tags'].join(', ');
+    payload = user + '\n\n' + tags + '\n\n' + text + '\n\n';
+    anno = {
+        "id":row['id'],
+        "user":user,
+        "exact":exact,
+        "text":text,
+        "prefix":prefix,
+        "tags":tags
+        }
+    attach_annotation( '', exact, prefix, payload, anno );
     }
 
-    attach_annotation( key, exact, prefix, payload, anno );
-  }
 }
 
 module.exports = get_annotations;
