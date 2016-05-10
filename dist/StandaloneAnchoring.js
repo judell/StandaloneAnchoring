@@ -2893,7 +2893,8 @@ function attach_annotations(data) {
 		"prefix":prefix,
 		"tags":tags
 		}
-    attach_annotation( '', exact, prefix, payload, anno );
+    try { attach_annotation( '', exact, prefix, payload, anno );}
+    catch (e) {	console.log('attach_annotation: ' + anno.id + ': ' + e.message); }
     }
 
 }
