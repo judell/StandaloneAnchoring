@@ -2869,8 +2869,32 @@ function get_text_position_selector(selector_list) {
   return get_selector_with(selector_list, 'start');
 }
 
+function get_range(anno) {
+   var selectors = anno.target[0].selector;
+   for (i=0; i<selectors.length; i++) {
+	   var selector = selectors[i];
+	   if (selector.hasOwnProperty('start')) {
+		   return Math.abs(selector.start - selector.end);
+	   }
+   }
+   return 0;
+}
+
+function compare(a,b) {
+  range_a = get_range(a);
+  range_b = get_range(b);
+  if (range_a > range_b)
+    return -1;
+  else if (range_a < range_b)
+    return 1;
+  else 
+    return 0;
+}
+
 function attach_annotations(data) {
   var rows = data['rows'];
+  rows.sort(compare);
+
   var anno_dict = {};
 
   for ( var i=0; i < rows.length; i++ ) {
