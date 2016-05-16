@@ -15,7 +15,7 @@ function attach_annotation(bounds, exact, prefix, payload, data) {
 }
 
 function get_annotations(uri) {
-  var url = 'https://hypothes.is/api/search?limit=200&uri=' + uri;
+  var url = 'https://hypothes.is/api/search?limit=200&uri=' + uri + '&user=' + user;
 
   var xhr = new XMLHttpRequest();
   xhr.addEventListener("load", function() {
