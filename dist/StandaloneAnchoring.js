@@ -1,11 +1,11 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.get_annotations = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _diffMatchPatch = require('diff-match-patch');
 
@@ -2360,11 +2360,11 @@ module.exports['DIFF_EQUAL'] = DIFF_EQUAL;
 },{}],3:[function(require,module,exports){
 'use strict';
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 var _nodeIteratorShim = require('node-iterator-shim');
 
@@ -2824,7 +2824,7 @@ function wrapRangeText(wrapperEl, range) {
 module.exports = wrapRangeText
 
 },{}],7:[function(require,module,exports){
-function attach_annotation(bounds, exact, prefix, payload, data) {
+function attach_annotation(exact, prefix, payload, data) {
   var wrap = require('wrap-range-text');
   var TextQuoteAnchor = require ('dom-anchor-text-quote');
 
@@ -2835,7 +2835,7 @@ function attach_annotation(bounds, exact, prefix, payload, data) {
   highlight.id = 'hypothesis-' + data.id;
   highlight.setAttribute('data-hypothesis', JSON.stringify(data));
   highlight.title = payload;
-  highlight.className = bounds + ' hypothesis_annotation';
+  highlight.className = 'hypothesis_annotation';
 
   wrap(highlight, range);
 }
@@ -2870,14 +2870,16 @@ function get_text_position_selector(selector_list) {
 }
 
 function get_range(anno) {
-   var selectors = anno.target[0].selector;
-   for (i=0; i<selectors.length; i++) {
-	   var selector = selectors[i];
-	   if (selector.hasOwnProperty('start')) {
-		   return Math.abs(selector.start - selector.end);
-	   }
-   }
-   return 0;
+  var selectors = anno.target[0].selector;
+  if (selectors) {
+  for (i=0; i<selectors.length; i++) {
+    var selector = selectors[i];
+    if (selector.hasOwnProperty('start')) {
+      return Math.abs(selector.start - selector.end);
+      }
+    }
+  }
+  return 0;
 }
 
 function compare(a,b) {
@@ -2907,17 +2909,17 @@ function attach_annotations(data) {
     var exact = text_quote_selector['exact'];
     var prefix = text_quote_selector['prefix'];
     var text = row['text'];
-	var tags = row['tags'].join(', ');
+    var tags = row['tags'].join(', ');
     payload = user + '\n\n' + tags + '\n\n' + text + '\n\n';
-	anno = {
+    anno = {
         "id":row['id'],
-		"user":user,
-		"exact":exact,
+        "user":user,
+        "exact":exact,
         "text":text,
-		"prefix":prefix,
-		"tags":tags
-		}
-    try { attach_annotation( '', exact, prefix, payload, anno );}
+        "prefix":prefix,
+        "tags":tags
+        }
+    try { attach_annotation(exact, prefix, payload, anno );}
     catch (e) {	console.log('attach_annotation: ' + anno.id + ': ' + e.message); }
     }
 
