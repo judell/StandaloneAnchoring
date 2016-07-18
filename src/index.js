@@ -44,14 +44,16 @@ function get_text_position_selector(selector_list) {
 }
 
 function get_range(anno) {
-   var selectors = anno.target[0].selector;
-   for (i=0; i<selectors.length; i++) {
-	   var selector = selectors[i];
-	   if (selector.hasOwnProperty('start')) {
-		   return Math.abs(selector.start - selector.end);
-	   }
-   }
-   return 0;
+  var selectors = anno.target[0].selector;
+  if (selectors) {
+  for (i=0; i<selectors.length; i++) {
+    var selector = selectors[i];
+    if (selector.hasOwnProperty('start')) {
+      return Math.abs(selector.start - selector.end);
+      }
+    }
+  }
+  return 0;
 }
 
 function compare(a,b) {
