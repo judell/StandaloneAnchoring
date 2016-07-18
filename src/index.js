@@ -1,4 +1,4 @@
-function attach_annotation(bounds, exact, prefix, payload, data) {
+function attach_annotation(exact, prefix, payload, data) {
   var wrap = require('wrap-range-text');
   var TextQuoteAnchor = require ('dom-anchor-text-quote');
 
@@ -9,7 +9,7 @@ function attach_annotation(bounds, exact, prefix, payload, data) {
   highlight.id = 'hypothesis-' + data.id;
   highlight.setAttribute('data-hypothesis', JSON.stringify(data));
   highlight.title = payload;
-  highlight.className = bounds + ' hypothesis_annotation';
+  highlight.className = 'hypothesis_annotation';
 
   wrap(highlight, range);
 }
@@ -91,7 +91,7 @@ function attach_annotations(data) {
         "prefix":prefix,
         "tags":tags
         }
-    try { attach_annotation( '', exact, prefix, payload, anno );}
+    try { attach_annotation(exact, prefix, payload, anno );}
     catch (e) {	console.log('attach_annotation: ' + anno.id + ': ' + e.message); }
     }
 
