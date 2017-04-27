@@ -151,8 +151,8 @@ mark { background-color: rgba(0,20,220,0.2); }
 
 <script src="./dist/StandaloneAnchoring.js"></script>
 <script>
-  var xhr = get_annotations('http://jonudell.net/h/trudeau.html');
-  xhr.addEventListener("load", function() {
+get_annotations('http://jonudell.net/h/trudeau.html', 'judell', 0, []);
+document.body.addEventListener("AnnotationsLoaded", function() {
     console.log('page knows ajax is done, and so are the annotations...');
     console.log('See:', document.querySelectorAll('mark'));
   });

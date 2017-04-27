@@ -2840,18 +2840,26 @@ function attach_annotation(exact, prefix, payload, data) {
   wrap(highlight, range);
 }
 
-function get_annotations(uri) {
-  var url = 'https://hypothes.is/api/search?limit=200&uri=' + uri;
-
-  var xhr = new XMLHttpRequest();
-  xhr.addEventListener("load", function() {
-    // TODO: needs error handling...
-    attach_annotations(JSON.parse(xhr.responseText));
-  });
-  xhr.open("GET", url);
-  xhr.send();
-  return xhr;
+function get_annotations(uri, user, offset, rows) {
+    var query = 'https://hypothes.is/api/search?offset=' + offset + '&limit=200&uri=' + uri + '&user=' + user;	
+    var xhr = new XMLHttpRequest();
+    xhr.addEventListener("load", function() {
+      var data = JSON.parse(xhr.responseText);
+      rows = rows.concat(data.rows);
+      if  ( data.rows.length != 0 ) {
+		 console.log('offset: ' + offset);
+         get_annotations(uri, user, offset+200, rows);
+      }
+      else {
+        attach_annotations(rows);
+		var event = new Event('AnnotationsLoaded');
+		document.body.dispatchEvent(event);
+      }
+    });
+	xhr.open("GET", query);
+	xhr.send();
 }
+
 
 function get_selector_with(selector_list, key) {
   for (var i=0; i<selector_list.length; i++) {
@@ -2893,14 +2901,15 @@ function compare(a,b) {
     return 0;
 }
 
-function attach_annotations(data) {
-  var rows = data['rows'];
+function attach_annotations(rows) {
   rows.sort(compare);
 
   var anno_dict = {};
 
   for ( var i=0; i < rows.length; i++ ) {
     var row = rows[i];
+    if ( row.hasOwnProperty('references') ) // skip replies
+      continue;
     var user = row['user'].replace('acct:','').replace('@hypothes.is','');
     var selector_list = row['target'][0]['selector'];
     var text_quote_selector = get_text_quote_selector(selector_list);
