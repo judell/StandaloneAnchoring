@@ -2,8 +2,7 @@ function attach_annotation(exact, prefix, payload, data) {
   var wrap = require('wrap-range-text');
   var TextQuoteAnchor = require ('dom-anchor-text-quote');
 
-  var tqa = new TextQuoteAnchor.default(document.body, exact, {'prefix':prefix});
-  var range = tqa.toRange();
+  var range = TextQuoteAnchor.toRange(document.body, {"exact":exact,"prefix":prefix});
 
   var highlight = document.createElement('mark');
   highlight.id = 'hypothesis-' + data.id;
