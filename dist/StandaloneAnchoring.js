@@ -1,191 +1,24 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.get_annotations = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-module.exports = require('./lib');
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.anchoring = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+module.exports = parents
 
-},{"./lib":2}],2:[function(require,module,exports){
-'use strict';
+function parents(node, filter) {
+  var out = []
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.fromRange = fromRange;
-exports.fromTextPosition = fromTextPosition;
-exports.toRange = toRange;
-exports.toTextPosition = toTextPosition;
+  filter = filter || noop
 
-var _diffMatchPatch = require('diff-match-patch');
+  do {
+    out.push(node)
+    node = node.parentNode
+  } while(node && node.tagName && filter(node))
 
-var _diffMatchPatch2 = _interopRequireDefault(_diffMatchPatch);
-
-var _domAnchorTextPosition = require('dom-anchor-text-position');
-
-var textPosition = _interopRequireWildcard(_domAnchorTextPosition);
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-// The DiffMatchPatch bitap has a hard 32-character pattern length limit.
-var SLICE_LENGTH = 32;
-var SLICE_RE = new RegExp('(.|[\r\n]){1,' + String(SLICE_LENGTH) + '}', 'g');
-var CONTEXT_LENGTH = SLICE_LENGTH;
-
-function fromRange(root, range) {
-  if (root === undefined) {
-    throw new Error('missing required parameter "root"');
-  }
-  if (range === undefined) {
-    throw new Error('missing required parameter "range"');
-  }
-
-  var position = textPosition.fromRange(root, range);
-  return fromTextPosition(root, position);
+  return out.slice(1)
 }
 
-function fromTextPosition(root, selector) {
-  if (root === undefined) {
-    throw new Error('missing required parameter "root"');
-  }
-  if (selector === undefined) {
-    throw new Error('missing required parameter "selector"');
-  }
-
-  var start = selector.start;
-
-  if (start === undefined) {
-    throw new Error('selector missing required property "start"');
-  }
-  if (start < 0) {
-    throw new Error('property "start" must be a non-negative integer');
-  }
-
-  var end = selector.end;
-
-  if (end === undefined) {
-    throw new Error('selector missing required property "end"');
-  }
-  if (end < 0) {
-    throw new Error('property "end" must be a non-negative integer');
-  }
-
-  var exact = root.textContent.substr(start, end - start);
-
-  var prefixStart = Math.max(0, start - CONTEXT_LENGTH);
-  var prefix = root.textContent.substr(prefixStart, start - prefixStart);
-
-  var suffixEnd = Math.min(root.textContent.length, end + CONTEXT_LENGTH);
-  var suffix = root.textContent.substr(end, suffixEnd - end);
-
-  return { exact: exact, prefix: prefix, suffix: suffix };
+function noop(n) {
+  return true
 }
 
-function toRange(root, selector) {
-  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-  var position = toTextPosition(root, selector, options);
-  if (position === null) {
-    return null;
-  } else {
-    return textPosition.toRange(root, position);
-  }
-}
-
-function toTextPosition(root, selector) {
-  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
-  if (root === undefined) {
-    throw new Error('missing required parameter "root"');
-  }
-  if (selector === undefined) {
-    throw new Error('missing required parameter "selector"');
-  }
-
-  var exact = selector.exact;
-
-  if (exact === undefined) {
-    throw new Error('selector missing required property "exact"');
-  }
-
-  var prefix = selector.prefix,
-      suffix = selector.suffix;
-  var hint = options.hint;
-
-  var dmp = new _diffMatchPatch2.default();
-
-  dmp.Match_Distance = root.textContent.length * 2;
-
-  // Work around a hard limit of the DiffMatchPatch bitap implementation.
-  // The search pattern must be no more than SLICE_LENGTH characters.
-  var slices = exact.match(SLICE_RE);
-  var loc = hint === undefined ? root.textContent.length / 2 | 0 : hint;
-  var start = Number.POSITIVE_INFINITY;
-  var end = Number.NEGATIVE_INFINITY;
-  var result = -1;
-  var havePrefix = prefix !== undefined;
-  var haveSuffix = suffix !== undefined;
-  var foundPrefix = false;
-
-  // If the prefix is known then search for that first.
-  if (havePrefix) {
-    result = dmp.match_main(root.textContent, prefix, loc);
-    if (result > -1) {
-      loc = result + prefix.length;
-      foundPrefix = true;
-    }
-  }
-
-  // If we have a suffix, and the prefix wasn't found, then search for it.
-  if (haveSuffix && !foundPrefix) {
-    result = dmp.match_main(root.textContent, suffix, loc + exact.length);
-    if (result > -1) {
-      loc = result - exact.length;
-    }
-  }
-
-  // Search for the first slice.
-  var firstSlice = slices.shift();
-  result = dmp.match_main(root.textContent, firstSlice, loc);
-  if (result > -1) {
-    start = result;
-    loc = end = start + firstSlice.length;
-  } else {
-    return null;
-  }
-
-  // Create a fold function that will reduce slices to positional extents.
-  var foldSlices = function foldSlices(acc, slice) {
-    if (!acc) {
-      // A search for an earlier slice of the pattern failed to match.
-      return null;
-    }
-
-    var result = dmp.match_main(root.textContent, slice, acc.loc);
-    if (result === -1) {
-      return null;
-    }
-
-    // The next slice should follow this one closely.
-    acc.loc = result + slice.length;
-
-    // Expand the start and end to a quote that includes all the slices.
-    acc.start = Math.min(acc.start, result);
-    acc.end = Math.max(acc.end, result + slice.length);
-
-    return acc;
-  };
-
-  // Use the fold function to establish the full quote extents.
-  // Expect the slices to be close to one another.
-  // This distance is deliberately generous for now.
-  dmp.Match_Distance = 64;
-  var acc = slices.reduce(foldSlices, { start: start, end: end, loc: loc });
-  if (!acc) {
-    return null;
-  }
-
-  return { start: acc.start, end: acc.end };
-}
-
-},{"diff-match-patch":3,"dom-anchor-text-position":4}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 'use strict'
 
 /**
@@ -2380,10 +2213,10 @@ module.exports['DIFF_DELETE'] = DIFF_DELETE;
 module.exports['DIFF_INSERT'] = DIFF_INSERT;
 module.exports['DIFF_EQUAL'] = DIFF_EQUAL;
 
-},{}],4:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 module.exports = require('./lib')
 
-},{"./lib":5}],5:[function(require,module,exports){
+},{"./lib":4}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2470,7 +2303,7 @@ function toRange(root) {
   return range;
 }
 
-},{"./range-to-string":6,"dom-node-iterator":8,"dom-seek":17}],6:[function(require,module,exports){
+},{"./range-to-string":5,"dom-node-iterator":9,"dom-seek":18}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -2545,16 +2378,203 @@ function rangeToString(range) {
   return text;
 }
 
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
+module.exports = require('./lib');
+
+},{"./lib":7}],7:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.fromRange = fromRange;
+exports.fromTextPosition = fromTextPosition;
+exports.toRange = toRange;
+exports.toTextPosition = toTextPosition;
+
+var _diffMatchPatch = require('diff-match-patch');
+
+var _diffMatchPatch2 = _interopRequireDefault(_diffMatchPatch);
+
+var _domAnchorTextPosition = require('dom-anchor-text-position');
+
+var textPosition = _interopRequireWildcard(_domAnchorTextPosition);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+// The DiffMatchPatch bitap has a hard 32-character pattern length limit.
+var SLICE_LENGTH = 32;
+var SLICE_RE = new RegExp('(.|[\r\n]){1,' + String(SLICE_LENGTH) + '}', 'g');
+var CONTEXT_LENGTH = SLICE_LENGTH;
+
+function fromRange(root, range) {
+  if (root === undefined) {
+    throw new Error('missing required parameter "root"');
+  }
+  if (range === undefined) {
+    throw new Error('missing required parameter "range"');
+  }
+
+  var position = textPosition.fromRange(root, range);
+  return fromTextPosition(root, position);
+}
+
+function fromTextPosition(root, selector) {
+  if (root === undefined) {
+    throw new Error('missing required parameter "root"');
+  }
+  if (selector === undefined) {
+    throw new Error('missing required parameter "selector"');
+  }
+
+  var start = selector.start;
+
+  if (start === undefined) {
+    throw new Error('selector missing required property "start"');
+  }
+  if (start < 0) {
+    throw new Error('property "start" must be a non-negative integer');
+  }
+
+  var end = selector.end;
+
+  if (end === undefined) {
+    throw new Error('selector missing required property "end"');
+  }
+  if (end < 0) {
+    throw new Error('property "end" must be a non-negative integer');
+  }
+
+  var exact = root.textContent.substr(start, end - start);
+
+  var prefixStart = Math.max(0, start - CONTEXT_LENGTH);
+  var prefix = root.textContent.substr(prefixStart, start - prefixStart);
+
+  var suffixEnd = Math.min(root.textContent.length, end + CONTEXT_LENGTH);
+  var suffix = root.textContent.substr(end, suffixEnd - end);
+
+  return { exact: exact, prefix: prefix, suffix: suffix };
+}
+
+function toRange(root, selector) {
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+  var position = toTextPosition(root, selector, options);
+  if (position === null) {
+    return null;
+  } else {
+    return textPosition.toRange(root, position);
+  }
+}
+
+function toTextPosition(root, selector) {
+  var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+  if (root === undefined) {
+    throw new Error('missing required parameter "root"');
+  }
+  if (selector === undefined) {
+    throw new Error('missing required parameter "selector"');
+  }
+
+  var exact = selector.exact;
+
+  if (exact === undefined) {
+    throw new Error('selector missing required property "exact"');
+  }
+
+  var prefix = selector.prefix,
+      suffix = selector.suffix;
+  var hint = options.hint;
+
+  var dmp = new _diffMatchPatch2.default();
+
+  dmp.Match_Distance = root.textContent.length * 2;
+
+  // Work around a hard limit of the DiffMatchPatch bitap implementation.
+  // The search pattern must be no more than SLICE_LENGTH characters.
+  var slices = exact.match(SLICE_RE);
+  var loc = hint === undefined ? root.textContent.length / 2 | 0 : hint;
+  var start = Number.POSITIVE_INFINITY;
+  var end = Number.NEGATIVE_INFINITY;
+  var result = -1;
+  var havePrefix = prefix !== undefined;
+  var haveSuffix = suffix !== undefined;
+  var foundPrefix = false;
+
+  // If the prefix is known then search for that first.
+  if (havePrefix) {
+    result = dmp.match_main(root.textContent, prefix, loc);
+    if (result > -1) {
+      loc = result + prefix.length;
+      foundPrefix = true;
+    }
+  }
+
+  // If we have a suffix, and the prefix wasn't found, then search for it.
+  if (haveSuffix && !foundPrefix) {
+    result = dmp.match_main(root.textContent, suffix, loc + exact.length);
+    if (result > -1) {
+      loc = result - exact.length;
+    }
+  }
+
+  // Search for the first slice.
+  var firstSlice = slices.shift();
+  result = dmp.match_main(root.textContent, firstSlice, loc);
+  if (result > -1) {
+    start = result;
+    loc = end = start + firstSlice.length;
+  } else {
+    return null;
+  }
+
+  // Create a fold function that will reduce slices to positional extents.
+  var foldSlices = function foldSlices(acc, slice) {
+    if (!acc) {
+      // A search for an earlier slice of the pattern failed to match.
+      return null;
+    }
+
+    var result = dmp.match_main(root.textContent, slice, acc.loc);
+    if (result === -1) {
+      return null;
+    }
+
+    // The next slice should follow this one closely.
+    acc.loc = result + slice.length;
+
+    // Expand the start and end to a quote that includes all the slices.
+    acc.start = Math.min(acc.start, result);
+    acc.end = Math.max(acc.end, result + slice.length);
+
+    return acc;
+  };
+
+  // Use the fold function to establish the full quote extents.
+  // Expect the slices to be close to one another.
+  // This distance is deliberately generous for now.
+  dmp.Match_Distance = 64;
+  var acc = slices.reduce(foldSlices, { start: start, end: end, loc: loc });
+  if (!acc) {
+    return null;
+  }
+
+  return { start: acc.start, end: acc.end };
+}
+
+},{"diff-match-patch":2,"dom-anchor-text-position":3}],8:[function(require,module,exports){
 module.exports = require('./lib/implementation')['default'];
 
-},{"./lib/implementation":11}],8:[function(require,module,exports){
+},{"./lib/implementation":12}],9:[function(require,module,exports){
 module.exports = require('./lib')['default'];
 module.exports.getPolyfill = require('./polyfill');
 module.exports.implementation = require('./implementation');
 module.exports.shim = require('./shim');
 
-},{"./implementation":7,"./lib":12,"./polyfill":15,"./shim":16}],9:[function(require,module,exports){
+},{"./implementation":8,"./lib":13,"./polyfill":16,"./shim":17}],10:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2608,7 +2628,7 @@ var NodeIterator = function () {
   return NodeIterator;
 }();
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -2623,7 +2643,7 @@ function createNodeIterator(root) {
   return doc.createNodeIterator.call(doc, root, whatToShow, filter);
 }
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2716,7 +2736,7 @@ var NodeIterator = function () {
   return NodeIterator;
 }();
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2741,7 +2761,7 @@ polyfill.shim = _shim2['default'];
 
 exports['default'] = polyfill;
 
-},{"./implementation":11,"./polyfill":13,"./shim":14}],13:[function(require,module,exports){
+},{"./implementation":12,"./polyfill":14,"./shim":15}],14:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2772,7 +2792,7 @@ function getPolyfill() {
   }
 } /*global document*/
 
-},{"./adapter":9,"./builtin":10,"./implementation":11}],14:[function(require,module,exports){
+},{"./adapter":10,"./builtin":11,"./implementation":12}],15:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2796,16 +2816,16 @@ function shim() {
   return polyfill;
 }
 
-},{"./builtin":10,"./polyfill":13}],15:[function(require,module,exports){
+},{"./builtin":11,"./polyfill":14}],16:[function(require,module,exports){
 module.exports = require('./lib/polyfill')['default'];
 
-},{"./lib/polyfill":13}],16:[function(require,module,exports){
+},{"./lib/polyfill":14}],17:[function(require,module,exports){
 module.exports = require('./lib/shim')['default'];
 
-},{"./lib/shim":14}],17:[function(require,module,exports){
+},{"./lib/shim":15}],18:[function(require,module,exports){
 module.exports = require('./lib')['default'];
 
-},{"./lib":18}],18:[function(require,module,exports){
+},{"./lib":19}],19:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -2899,27 +2919,7 @@ function before(ref, node) {
   return l > r;
 }
 
-},{"ancestors":19,"index-of":20}],19:[function(require,module,exports){
-module.exports = parents
-
-function parents(node, filter) {
-  var out = []
-
-  filter = filter || noop
-
-  do {
-    out.push(node)
-    node = node.parentNode
-  } while(node && node.tagName && filter(node))
-
-  return out.slice(1)
-}
-
-function noop(n) {
-  return true
-}
-
-},{}],20:[function(require,module,exports){
+},{"ancestors":1,"index-of":20}],20:[function(require,module,exports){
 /*!
  * index-of <https://github.com/jonschlinkert/index-of>
  *
@@ -2954,275 +2954,12 @@ module.exports = function indexOf(arr, ele, start) {
 };
 
 },{}],21:[function(require,module,exports){
-
-// return all text nodes that are contained within `el`
-function getTextNodes(el) {
-  el = el || document.body
-
-  var doc = el.ownerDocument || document
-    , walker = doc.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false)
-    , textNodes = []
-    , node
-
-  while (node = walker.nextNode()) {
-    textNodes.push(node)
-  }
-  return textNodes
+var anchoring = {
+  TextQuoteAnchor: require ('dom-anchor-text-quote'),
+  TextPositionAnchor: require ('dom-anchor-text-position'),
 }
 
-// return true if `rangeA` intersects `rangeB`
-function rangesIntersect(rangeA, rangeB) {
-  return rangeA.compareBoundaryPoints(Range.END_TO_START, rangeB) === -1 &&
-    rangeA.compareBoundaryPoints(Range.START_TO_END, rangeB) === 1
-}
+module.exports = anchoring;
 
-// create and return a range that selects `node`
-function createRangeFromNode(node) {
-  var range = node.ownerDocument.createRange()
-  try {
-    range.selectNode(node)
-  } catch (e) {
-    range.selectNodeContents(node)
-  }
-  return range
-}
-
-// return true if `node` is fully or partially selected by `range`
-function rangeIntersectsNode(range, node) {
-  if (range.intersectsNode) {
-    return range.intersectsNode(node)
-  } else {
-    return rangesIntersect(range, createRangeFromNode(node))
-  }
-}
-
-// return all non-empty text nodes fully or partially selected by `range`
-function getRangeTextNodes(range) {
-  var container = range.commonAncestorContainer
-    , nodes = getTextNodes(container.parentNode || container)
-
-  return nodes.filter(function (node) {
-    return rangeIntersectsNode(range, node) && isNonEmptyTextNode(node)
-  })
-}
-
-// returns true if `node` has text content
-function isNonEmptyTextNode(node) {
-  return node.textContent.length > 0
-}
-
-// remove `el` from the DOM
-function remove(el) {
-  if (el.parentNode) {
-    el.parentNode.removeChild(el)
-  }
-}
-
-// replace `node` with `replacementNode`
-function replaceNode(replacementNode, node) {
-  remove(replacementNode)
-  node.parentNode.insertBefore(replacementNode, node)
-  remove(node)
-}
-
-// unwrap `el` by replacing itself with its contents
-function unwrap(el) {
-  var range = document.createRange()
-  range.selectNodeContents(el)
-  replaceNode(range.extractContents(), el)
-}
-
-// undo the effect of `wrapRangeText`, given a resulting array of wrapper `nodes`
-function undo(nodes) {
-  nodes.forEach(function (node) {
-    var parent = node.parentNode
-    unwrap(node)
-    parent.normalize()
-  })
-}
-
-// create a node wrapper function
-function createWrapperFunction(wrapperEl, range) {
-    var startNode = range.startContainer
-      , endNode = range.endContainer
-      , startOffset = range.startOffset
-      , endOffset = range.endOffset
-
-  return function wrapNode(node) {
-    var currentRange = document.createRange()
-      , currentWrapper = wrapperEl.cloneNode()
-
-    currentRange.selectNodeContents(node)
-
-    if (node === startNode && startNode.nodeType === 3) {
-      currentRange.setStart(node, startOffset)
-      startNode = currentWrapper
-      startOffset = 0
-    }
-    if (node === endNode && endNode.nodeType === 3) {
-      currentRange.setEnd(node, endOffset)
-      endNode = currentWrapper
-      endOffset = 1
-    }
-
-    currentRange.surroundContents(currentWrapper)
-    return currentWrapper
-  }
-}
-
-function wrapRangeText(wrapperEl, range) {
-  var nodes
-    , wrapNode
-    , wrapperObj = {}
-
-  if (typeof range === 'undefined') {
-    // get the current selection if no range is specified
-    range = window.getSelection().getRangeAt(0)
-  }
-
-  if (range.isCollapsed) {
-    // nothing to wrap
-    return []
-  }
-
-  if (typeof wrapperEl === 'undefined') {
-    wrapperEl = 'span'
-  }
-
-  if (typeof wrapperEl === 'string') {
-    // assume it's a tagname
-    wrapperEl = document.createElement(wrapperEl)
-  }
-
-  wrapNode = createWrapperFunction(wrapperEl, range)
-
-  nodes = getRangeTextNodes(range)
-  nodes = nodes.map(wrapNode)
-
-  wrapperObj.nodes = nodes
-  wrapperObj.unwrap = function () {
-    if (this.nodes.length) {
-      undo(this.nodes)
-      this.nodes = []
-    }
-  }
-
-  return wrapperObj
-}
-
-module.exports = wrapRangeText
-
-},{}],22:[function(require,module,exports){
-function attach_annotation(exact, prefix, payload, data) {
-  var wrap = require('wrap-range-text');
-  var TextQuoteAnchor = require ('dom-anchor-text-quote');
-
-  var range = TextQuoteAnchor.toRange(document.body, {"exact":exact,"prefix":prefix});
-
-  var highlight = document.createElement('mark');
-  highlight.id = 'hypothesis-' + data.id;
-  highlight.setAttribute('data-hypothesis', JSON.stringify(data));
-  highlight.title = payload;
-  highlight.className = 'hypothesis_annotation';
-
-  wrap(highlight, range);
-}
-
-function get_annotations(uri, user, offset, rows) {
-    var query = 'https://hypothes.is/api/search?offset=' + offset + '&limit=200&uri=' + uri + '&user=' + user;	
-    var xhr = new XMLHttpRequest();
-    xhr.addEventListener("load", function() {
-      var data = JSON.parse(xhr.responseText);
-      rows = rows.concat(data.rows);
-      if  ( data.rows.length != 0 ) {
-		 console.log('offset: ' + offset);
-         get_annotations(uri, user, offset+200, rows);
-      }
-      else {
-        attach_annotations(rows);
-		var event = new Event('AnnotationsLoaded');
-		document.body.dispatchEvent(event);
-      }
-    });
-	xhr.open("GET", query);
-	xhr.send();
-}
-
-
-function get_selector_with(selector_list, key) {
-  for (var i=0; i<selector_list.length; i++) {
-    if ( selector_list[i].hasOwnProperty(key) )
-      return selector_list[i];
-  }
-}
-
-
-function get_text_quote_selector(selector_list) {
-  return get_selector_with(selector_list, 'exact');
-}
-
-function get_text_position_selector(selector_list) {
-  return get_selector_with(selector_list, 'start');
-}
-
-function get_range(anno) {
-  var selectors = anno.target[0].selector;
-  if (selectors) {
-  for (i=0; i<selectors.length; i++) {
-    var selector = selectors[i];
-    if (selector.hasOwnProperty('start')) {
-      return Math.abs(selector.start - selector.end);
-      }
-    }
-  }
-  return 0;
-}
-
-function compare(a,b) {
-  range_a = get_range(a);
-  range_b = get_range(b);
-  if (range_a > range_b)
-    return -1;
-  else if (range_a < range_b)
-    return 1;
-  else 
-    return 0;
-}
-
-function attach_annotations(rows) {
-  rows.sort(compare);
-
-  var anno_dict = {};
-
-  for ( var i=0; i < rows.length; i++ ) {
-    var row = rows[i];
-    if ( row.hasOwnProperty('references') ) // skip replies
-      continue;
-    var user = row['user'].replace('acct:','').replace('@hypothes.is','');
-    var selector_list = row['target'][0]['selector'];
-    var text_quote_selector = get_text_quote_selector(selector_list);
-    if ( text_quote_selector == null )
-      continue;
-    var exact = text_quote_selector['exact'];
-    var prefix = text_quote_selector['prefix'];
-    var text = row['text'];
-    var tags = row['tags'].join(', ');
-    payload = user + '\n\n' + tags + '\n\n' + text + '\n\n';
-    anno = {
-        "id":row['id'],
-        "user":user,
-        "exact":exact,
-        "text":text,
-        "prefix":prefix,
-        "tags":tags
-        }
-    try { attach_annotation(exact, prefix, payload, anno );}
-    catch (e) {	console.log('attach_annotation: ' + anno.id + ': ' + e.message); }
-    }
-
-}
-
-module.exports = get_annotations;
-
-},{"dom-anchor-text-quote":1,"wrap-range-text":21}]},{},[22])(22)
+},{"dom-anchor-text-position":3,"dom-anchor-text-quote":6}]},{},[21])(21)
 });

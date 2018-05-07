@@ -1,10 +1,10 @@
 {
   "name": "StandaloneAnchoring",
   "version": "0.1.0",
-  "description": "Highlights from Hypothes.is",
+  "description": "Encapsulate TextQuoteAnchor and TextPositionAnchor",
   "main": "src/index.js",
   "scripts": {
-    "build": "browserify src/index.js -s get_annotations -o dist/StandaloneAnchoring.js",
+    "build": "browserify src/index.js -s anchoring -o dist/StandaloneAnchoring.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
